@@ -250,6 +250,13 @@
             this.update(true);
             this.updateOptGroupSelect();
 
+            if (this.options.pickoutSelected) {
+                this.$selectItems.filter(':checked').each( function () {
+                    console.log('you');
+                    that._pickoutSelectedItems( this );
+                });
+            }
+
             if (this.options.isOpen) {
                 this.open();
             }
@@ -415,38 +422,7 @@
 
                 if (that.options.pickoutSelected) {
                     if ($.trim(that.$searchInput.val()).length == 0) {
-                        var group_label = that.getGroupLabel( this.dataset.group ),
-                            group_elems = that.getGroupElems( this.dataset.group ),
-                            is_group_all_selected = that.isOptGroupAllSelected( group_label );
-
-                        if (is_group_all_selected) {
-                            // Hide group label in the dropdown area
-                            $(group_label.parentElement).hide();
-
-                            // Remove all children at selected area and
-                            // insert the group instead
-                            that._pickOutSelectedGroup($(group_label.querySelector('input')));
-                        } else {
-                            that.$selectedArea
-                                .append( $(this)
-                                         .parent()
-                                         .clone()
-                                         .off('click')
-                                         .on('click', function (e) {
-                                             var original_checkbox;
-                                             // $(that.getGroupElem(this.querySelector('input').dataset.group)).show();
-                                             $(
-                                                 ( original_checkbox = that
-                                                   .getSelectElemByValue(
-                                                       this.querySelector('input').value )
-                                                 ).parentElement
-                                                     .parentElement
-                                             ).show();
-                                             original_checkbox.checked = false;
-                                             e.target.parentElement.parentElement.removeChild(e.target.parentElement);
-                                             return false;
-                                         }));
-                        }
+                        that._pickoutSelectedItems(this);
                     } else {
                         // WHAT TO DO WHEN THERE'S FILTER TEXT?
                         (function () { return })();
@@ -469,49 +445,96 @@
             });
         },
 
+        _pickoutSelectedItems: function (item_input) {
+            var group_label = this.getGroupLabel( item_input.dataset.group ),
+                group_elems = this.getGroupElems( item_input.dataset.group ),
+                is_group_all_selected = this.isOptGroupAllSelected( group_label ),
+                that = this;
+
+            if (is_group_all_selected) {
+                // Hide group label in the dropdown area
+                $(group_label.parentElement).hide();
+
+                // Remove all children at selected area and
+                // insert the group instead
+                this._pickOutSelectedGroup($(group_label.querySelector('input')));
+            } else {
+                this.$selectedArea
+                    .append( $(item_input)
+                             .parent()
+                             .clone()
+                             .off('click')
+                             .on('click', function (e) {
+                                 var original_checkbox;
+                                 // $(this.getGroupElem(item_input.querySelector('input').dataset.group)).show();
+                                 $(
+                                     ( original_checkbox = that
+                                       .getSelectElemByValue(
+                                           item_input.value )
+                                     ).parentElement
+                                         .parentElement
+                                 ).show();
+                                 original_checkbox.checked = false;
+                                 e.target.parentElement.parentElement.removeChild(e.target.parentElement);
+                                 return false;
+                             }));
+            }
+        },
+
         _pickOutSelectedGroup: function ($group_input) {
             var that = this;
-            console.log('picking.');
 
-            // Bring myself up to the selected area if checked
-            this.$selectedArea
-                .append( // Shouldn't be append, but let's have it now.
-                    $group_input
-                        .parent()
-                        .clone()
-                        .off('click')
-                        .on('click', function (e) {
-                            var group = this.dataset.group;
-                            console.log('this:');
-                            console.log(this);
-                            console.log("group:");
-                            console.log(group);
+            if ( this.$selectedArea.find(
+                   sprintf('label[data-group="%s"] > input[%s]',
+                           $group_input[0]
+                             .parentElement
+                             .dataset
+                             .group,
+                           this.selectGroupName
+                          )
+            ).length === 0 ) {
+                // Bring myself up to the selected area if checked
+                this.$selectedArea
+                    .append( // Shouldn't be append, but let's have it now.
+                        $group_input
+                            .parent()
+                            .clone()
+                            .off('click')
+                            .on('click', function (e) {
+                                var group = this.dataset.group;
+                                console.log('this:');
+                                console.log(this);
+                                console.log("group:");
+                                console.log(group);
 
-                            // Re-show all children
-                            that
-                                .getGroupElems( group )
-                                .forEach( function (e) {
-                                    console.log('in loop:');
-                                    console.log(e);
-                                    $(e.parentElement.parentElement).show();
-                                    e.checked = false;
-                                });
+                                // Re-show all children
+                                that
+                                    .getGroupElems( group )
+                                    .forEach( function (e) {
+                                        console.log('in loop:');
+                                        console.log(e);
+                                        $(e.parentElement.parentElement).show();
+                                        e.checked = false;
+                                    });
 
-                            // Re-show the group label itself
-                            for( var i = 0; i < that.$selectGroups.length; ++i ) {
-                                var parent_li = that.$selectGroups[i].parentElement
-                                console.log('parent_li:');
-                                console.log(parent_li);
-                                if( parent_li.dataset.group === group ) {
-                                    $(parent_li.parentElement).show();
-                                    that.$selectGroups[i].checked = false;
-                                    break;
+                                // Re-show the group label itself
+                                for( var i = 0; i < that.$selectGroups.length; ++i ) {
+                                    var parent_li = that.$selectGroups[i].parentElement
+                                    console.log('parent_li:');
+                                    console.log(parent_li);
+                                    if( parent_li.dataset.group === group ) {
+                                        $(parent_li.parentElement).show();
+                                        that.$selectGroups[i].checked = false;
+                                        break;
+                                    }
                                 }
-                            }
 
-                            this.parentElement.removeChild(this);
-                            return false;
-                        }))
+                                this.parentElement.removeChild(this);
+                                return false;
+                            }))
+            }
+
+            this.$selectedArea
                 // Find and Remove anything in the 'selected area' which belongs to this
                 // group.
                 .find(
