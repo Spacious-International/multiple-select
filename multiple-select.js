@@ -868,7 +868,9 @@
                     var $parent = $(this).parent();
                     var group = $parent.attr('data-group'),
                         $items = that.$selectItems.filter(':visible');
-                    $parent[$items.filter(sprintf('[data-group="%s"]', group)).length ? 'show' : 'hide']();
+                    $parent[
+                        ($items.filter(sprintf('[data-group="%s"]', group)).length
+                         || that.options.groupFilterFunction(this, text)) ? 'show' : 'hide']();
                 });
 
                 //Check if no matches found
@@ -970,10 +972,13 @@
             return $elm.attr('label');
         },
         filterFunction: function (item, text) {
-            return removeDiacritics( $(item).parent().text().toLowerCase() )
-                .indexOf(removeDiacritics(text)) >= 0
+            return removeDiacritics( item.parentElement.textContent.toLowerCase() )
+                .indexOf(removeDiacritics(text)) >= 0;
         },
-
+        groupFilterFunction: function (item, text) {
+            return removeDiacritics( item.parentElement.textContent.toLowerCase() )
+                .indexOf(removeDiacritics(text)) >= 0;
+        },
         onOpen: function () {
             return false;
         },
