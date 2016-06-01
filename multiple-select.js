@@ -610,14 +610,12 @@
             this.$choice.find('>div').addClass('open');
             this.$drop[this.animateMethod('show')]();
 
-            // fix filter bug: no results show
-            this.$selectAll.parent().show();
-            this.$noResults.hide();
-
-            // Fix #77: 'All selected' when no options
-            if (!this.$el.children().length) {
+            if (!this.$el.children().length ) {
                 this.$selectAll.parent().hide();
                 this.$noResults.show();
+            } else {
+                this.$selectAll.parent().show();
+                this.$noResults.hide();
             }
 
             if (this.options.container) {
@@ -919,7 +917,8 @@
                 });
 
                 //Check if no matches found
-                if (this.$selectItems.parent().filter(':visible').length) {
+                if ( this.$selectItems.parent().filter(':visible').length !== 0
+                     || this.$selectGroups.parent().filter(':visible').length !== 0 ) {
                     this.$selectAll.parent().show();
                     this.$noResults.hide();
                 } else {
