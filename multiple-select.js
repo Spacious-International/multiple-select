@@ -9,6 +9,11 @@
 
     'use strict';
 
+    var mprint = function (obj) {
+        console.log(obj);
+        return obj;
+    }
+
     // it only does '%s', and return '' when arguments are undefined
     var sprintf = function (str) {
         var args = arguments,
@@ -219,6 +224,10 @@
                 ].join(''));
             }
 
+            if (this.options.pickoutSelected) {
+                this.$drop.append('<div class="ms-selected"></div>');
+            }
+
             $.each(this.$el.children(), function (i, elm) {
                 $ul.append(that.optionToHtml(i, elm));
             });
@@ -232,6 +241,7 @@
             this.$selectAll = this.$drop.find('input[' + this.selectAllName + ']');
             this.$selectGroups = this.$drop.find('input[' + this.selectGroupName + ']');
             this.$selectItems = this.$drop.find('input[' + this.selectItemName + ']:enabled');
+            this.$selectedArea = this.$drop.find('.ms-selected');
             this.$disableItems = this.$drop.find('input[' + this.selectItemName + ']:disabled');
             this.$noResults = this.$drop.find('.ms-no-results');
 
@@ -374,9 +384,15 @@
                     $children = $items.filter(sprintf('[data-group="%s"]', group)),
                     checked = $children.length !== $children.filter(':checked').length;
 
+                console.log("select group clicked.");
                 $children.prop('checked', checked);
                 that.updateSelectAll();
                 that.update();
+
+                if (that.options.pickoutSelected) {
+                    that._pickOutSelectedGroup($(this));
+                }
+
                 that.options.onOptgroupClick({
                     label: $(this).parent().text(),
                     checked: checked,
@@ -384,7 +400,9 @@
                     instance: that
                 });
             });
+
             this.$selectItems.off('click').on('click', function () {
+                console.log("select item clicked.");
                 that.updateSelectAll();
                 that.update();
                 that.updateOptGroupSelect();
@@ -394,6 +412,46 @@
                     checked: $(this).prop('checked'),
                     instance: that
                 });
+
+                if (that.options.pickoutSelected) {
+                    if ($.trim(that.$searchInput.val()).length == 0) {
+                        var group_label = that.getGroupLabel( this.dataset.group ),
+                            group_elems = that.getGroupElems( this.dataset.group ),
+                            is_group_all_selected = that.isOptGroupAllSelected( group_label );
+
+                        if (is_group_all_selected) {
+                            // Hide group label in the dropdown area
+                            $(group_label.parentElement).hide();
+
+                            // Remove all children at selected area and
+                            // insert the group instead
+                            that._pickOutSelectedGroup($(group_label.querySelector('input')));
+                        } else {
+                            that.$selectedArea
+                                .append( $(this)
+                                         .parent()
+                                         .clone()
+                                         .off('click')
+                                         .on('click', function (e) {
+                                             var original_checkbox;
+                                             // $(that.getGroupElem(this.querySelector('input').dataset.group)).show();
+                                             $(
+                                                 ( original_checkbox = that
+                                                   .getSelectElemByValue(
+                                                       this.querySelector('input').value )
+                                                 ).parentElement
+                                                     .parentElement
+                                             ).show();
+                                             original_checkbox.checked = false;
+                                             e.target.parentElement.parentElement.removeChild(e.target.parentElement);
+                                             return false;
+                                         }));
+                        }
+                    } else {
+                        // WHAT TO DO WHEN THERE'S FILTER TEXT?
+                        (function () { return })();
+                    }
+                }
 
                 if (that.options.single && that.options.isOpen && !that.options.keepOpen) {
                     that.close();
@@ -409,6 +467,60 @@
                     that.update();
                 }
             });
+        },
+
+        _pickOutSelectedGroup: function ($group_input) {
+            var that = this;
+            console.log('picking.');
+
+            // Bring myself up to the selected area if checked
+            this.$selectedArea
+                .append( // Shouldn't be append, but let's have it now.
+                    $group_input
+                        .parent()
+                        .clone()
+                        .off('click')
+                        .on('click', function (e) {
+                            var group = this.dataset.group;
+                            console.log('this:');
+                            console.log(this);
+                            console.log("group:");
+                            console.log(group);
+
+                            // Re-show all children
+                            that
+                                .getGroupElems( group )
+                                .forEach( function (e) {
+                                    console.log('in loop:');
+                                    console.log(e);
+                                    $(e.parentElement.parentElement).show();
+                                    e.checked = false;
+                                });
+
+                            // Re-show the group label itself
+                            for( var i = 0; i < that.$selectGroups.length; ++i ) {
+                                var parent_li = that.$selectGroups[i].parentElement
+                                console.log('parent_li:');
+                                console.log(parent_li);
+                                if( parent_li.dataset.group === group ) {
+                                    $(parent_li.parentElement).show();
+                                    that.$selectGroups[i].checked = false;
+                                    break;
+                                }
+                            }
+
+                            this.parentElement.removeChild(this);
+                            return false;
+                        }))
+                // Find and Remove anything in the 'selected area' which belongs to this
+                // group.
+                .find(
+                    sprintf('label:not(.optgroup) > input[data-group="%s"]',
+                            $group_input[0].parentElement.dataset.group) )
+                .each( function () {
+                    console.log(this);
+                    this.parentElement.parentElement.removeChild(this.parentElement);
+                })
         },
 
         open: function () {
@@ -475,6 +587,7 @@
             return methods[method][this.options.animate] || method;
         },
 
+
         update: function (isInit) {
             var that = this,
                 selects = this.options.displayValues ? this.getSelects() : this.getSelects('text'),
@@ -523,13 +636,22 @@
                 $span.prop('title', this.getSelects('text'));
             }
 
+
             // set selects to select
             this.$el.val(this.getSelects()).trigger('change');
 
-            // add selected class to selected li
+            // Remove old `selected' class
             this.$drop.find('li').removeClass('selected');
+
             this.$drop.find('input:checked').each(function () {
-                $(this).parents('li').first().addClass('selected');
+                var parent_li = $(this).parents('li');
+
+                // add selected class to selected li
+                parent_li.first().addClass('selected');
+
+                if (that.options.pickoutSelected) {
+                    parent_li.hide();
+                }
             });
 
             // trigger <select> change event
@@ -551,6 +673,37 @@
             }
         },
 
+        getGroupElems: function (group) {
+            return this.$selectItems.filter(
+                sprintf('[data-group="%s"]', group)).toArray();
+        },
+
+        getGroupLabel: function (group) {
+            for( var i = 0; i < this.$selectGroups.length; ++i ) {
+                var parent_label = this.$selectGroups[i].parentElement
+                if( parent_label.dataset.group === group ) {
+                    return parent_label;
+                }
+            }
+        },
+
+        getSelectElemByValue: function (value) {
+            return this.$selectItems.filter(
+                sprintf('[value="%s"]', value))[0];
+        },
+
+        // Doesn't take into account if anything is hidden or not, for
+        // simplicity's sake.
+        isOptGroupAllSelected: function (group_label) {
+            var group = group_label.getAttribute('data-group'),
+                data_selector = sprintf('[data-group="%s"]', group),
+                $children = this.$selectItems.filter(data_selector),
+                $children_checked = $children.filter(':checked');
+
+            return $children.length
+                && $children.length === $children_checked.length;
+        },
+
         updateOptGroupSelect: function () {
             var $items = this.options.multipleSelectFilteredOnly
                              ? this.$selectItems.filter(':visible')
@@ -568,10 +721,14 @@
             var that = this,
                 texts = [],
                 values = [];
+
             this.$drop.find(sprintf('input[%s]:checked', this.selectItemName)).each(function () {
                 texts.push($(this).parents('li').first().text());
                 values.push($(this).val());
             });
+            console.log( "First round:" );
+            console.log( texts );
+            console.log( values );
 
             if (type === 'text' && this.$selectGroups.length) {
                 texts = [];
@@ -764,6 +921,7 @@
         filterAcceptOnEnter: false,
         hideOptgroupCheckboxes: false,
         multipleSelectFilteredOnly: true,
+        pickoutSelected: false,
 
         selectAllText: 'Select all',
         allSelected: 'All selected',
