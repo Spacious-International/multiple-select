@@ -1,8 +1,20 @@
 /**
- * @author zhixin wen <wenzhixin2010@gmail.com>
- * @version 1.2.1
+ * Original author: zhixin wen <wenzhixin2010@gmail.com>
+ * Original project page: http://wenzhixin.net.cn/p/multiple-select/
+ * Forked at version: 1.2.1
  *
- * http://wenzhixin.net.cn/p/multiple-select/
+ * This is a fork of the original project for our particular use case.
+ * NOT ALL OPTIONS OF THE ORIGINAL LIBRARY WORK UNDER THIS VERSION.
+ * Especially the select-all functionality.
+ *
+ * I added most notably the pickoutSelected option, which is supposed
+ * to be used together with multiple: true, filter: true, selectAll: false,
+ * multipleSelectFilteredOnly: false. Other combinations is not guaranteed
+ * to be working, as of today.
+ *
+ * 01 Jun, 2016.
+ *
+ * Haochi Kiang <haochi@spacious.hk>
  */
 
 (function ($) {
@@ -255,7 +267,6 @@
 
             if (this.options.pickoutSelected) {
                 this.$selectItems.filter(':checked').each( function () {
-                    console.log('you');
                     that._pickoutSelectedItems( this );
                 });
             }
@@ -394,7 +405,6 @@
                     $children = $items.filter(sprintf('[data-group="%s"]', group)),
                     checked = $children.length !== $children.filter(':checked').length;
 
-                console.log("select group clicked.");
                 $children.prop('checked', checked);
                 that.updateSelectAll();
                 that.update();
@@ -412,7 +422,6 @@
             });
 
             this.$selectItems.off('click').on('click', function () {
-                console.log("select item clicked.");
                 that.updateSelectAll();
                 that.update();
                 that.updateOptGroupSelect();
@@ -478,7 +487,8 @@
                                          .parentElement
                                  ).show();
                                  original_checkbox.checked = false;
-                                 e.target.parentElement.parentElement.removeChild(e.target.parentElement);
+                                 this.parentElement.removeChild(this);
+                                 that.update();
                                  return false;
                              }));
             }
@@ -505,17 +515,10 @@
                             .off('click')
                             .on('click', function (e) {
                                 var group = this.dataset.group;
-                                console.log('this:');
-                                console.log(this);
-                                console.log("group:");
-                                console.log(group);
-
                                 // Re-show all children
                                 that
                                     .getGroupElems( group )
                                     .forEach( function (e) {
-                                        console.log('in loop:');
-                                        console.log(e);
                                         $(e.parentElement.parentElement).show();
                                         e.checked = false;
                                     });
@@ -523,8 +526,6 @@
                                 // Re-show the group label itself
                                 for( var i = 0; i < that.$selectGroups.length; ++i ) {
                                     var parent_li = that.$selectGroups[i].parentElement
-                                    console.log('parent_li:');
-                                    console.log(parent_li);
                                     if( parent_li.dataset.group === group ) {
                                         $(parent_li.parentElement).show();
                                         that.$selectGroups[i].checked = false;
@@ -533,6 +534,7 @@
                                 }
 
                                 this.parentElement.removeChild(this);
+                                that.update();
                                 return false;
                             }))
             }
@@ -544,7 +546,6 @@
                     sprintf('label:not(.optgroup) > input[data-group="%s"]',
                             $group_input[0].parentElement.dataset.group) )
                 .each( function () {
-                    console.log(this);
                     this.parentElement.parentElement.removeChild(this.parentElement);
                 })
         },
@@ -626,7 +627,7 @@
                     this.$selectGroups.get().reduce( function(sums, current) {
                         var $current = $(current),
                             group = $current.parent().data('group'),
-                            $children = that.$drop.find(sprintf('[%s][data-group="%s"]', that.selectItemName, group)),
+                            $children = that.$drop.find(sprintf('ul [%s][data-group="%s"]', that.selectItemName, group)),
                             $selected = $children.filter(':checked');
                         return [ sums[0] + $selected.length, sums[1] + $children.length ];
                     }, [0, 0])
@@ -752,9 +753,6 @@
                 texts.push($(this).parents('li').first().text());
                 values.push($(this).val());
             });
-            console.log( "First round:" );
-            console.log( texts );
-            console.log( values );
 
             if (type === 'text' && this.$selectGroups.length) {
                 texts = [];
@@ -762,7 +760,7 @@
                     var html = [],
                         text = $.trim($(this).parent().text()),
                         group = $(this).parent().data('group'),
-                        $children = that.$drop.find(sprintf('[%s][data-group="%s"]', that.selectItemName, group)),
+                        $children = that.$drop.find(sprintf('ul [%s][data-group="%s"]', that.selectItemName, group)),
                         $selected = $children.filter(':checked');
 
                     if (!$selected.length) {
