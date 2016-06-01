@@ -235,7 +235,10 @@
             this.$drop.append($ul);
 
             this.$drop.find('ul').css('max-height', this.options.maxHeight + 'px');
-            this.$drop.find('.multiple').css('width', this.options.multipleWidth + 'px');
+            this.$drop.find('.multiple label')
+                .css('width',
+                     this.options.multipleWidth
+                     + (typeof this.options.multipleWidth === 'number' ? 'px' : ''));
 
             this.$searchInput = this.$drop.find('.ms-search input');
             this.$selectAll = this.$drop.find('input[' + this.selectAllName + ']');
@@ -928,7 +931,7 @@
         minimumCountSelected: 3,
         ellipsis: false,
         multiple: false,
-        multipleWidth: 80,
+        multipleWidth: '100%',
         single: false,
         filter: false,
         width: undefined,

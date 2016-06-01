@@ -93,6 +93,10 @@
     box-shadow: 0 -4px 5px rgba(0, 0, 0, .15);
 }
 
+.ms-selected {
+    padding: 5px 8px;
+}
+
 .ms-search {
     display: inline-block;
     margin: 0;
