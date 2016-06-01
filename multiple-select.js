@@ -322,7 +322,7 @@
                     this.options.hideOptgroupCheckboxes || this.options.single ? '' :
                         sprintf('<input type="checkbox" %s %s>',
                         this.selectGroupName, disabled ? 'disabled="disabled"' : ''),
-                    label,
+                    sprintf('<span>%s</span>', label),
                     '</label>',
                     '</li>'
                 ].join(''));
@@ -495,26 +495,26 @@
         },
 
         _pickOutSelectedGroup: function ($group_input) {
-            var that = this;
-
-            if ( this.$selectedArea.find(
-                   sprintf('label[data-group="%s"] > input[%s]',
-                           $group_input[0]
+            var that = this,
+                group = $group_input[0]
                              .parentElement
                              .dataset
                              .group,
-                           this.selectGroupName
-                          )
+                $cloned;
+
+            if ( this.$selectedArea.find(
+                   sprintf('label[data-group="%s"] > input[%s]',
+                           group,
+                           this.selectGroupName )
             ).length === 0 ) {
                 // Bring myself up to the selected area if checked
                 this.$selectedArea
                     .append( // Shouldn't be append, but let's have it now.
-                        $group_input
+                        $cloned = $group_input
                             .parent()
                             .clone()
                             .off('click')
                             .on('click', function (e) {
-                                var group = this.dataset.group;
                                 // Re-show all children
                                 that
                                     .getGroupElems( group )
@@ -524,6 +524,7 @@
                                     });
 
                                 // Re-show the group label itself
+                                // TODO: replace this with getGroupLabel call
                                 for( var i = 0; i < that.$selectGroups.length; ++i ) {
                                     var parent_li = that.$selectGroups[i].parentElement
                                     if( parent_li.dataset.group === group ) {
@@ -537,6 +538,13 @@
                                 that.update();
                                 return false;
                             }))
+                $cloned
+                    .find('span')
+                    .html(that
+                            .options
+                            .pickoutSelectedGroupLabel
+                            .replace('#', $cloned.text())
+                            .replace('%', that.getGroupElems(group).length));
             }
 
             this.$selectedArea
@@ -946,6 +954,7 @@
         hideOptgroupCheckboxes: false,
         multipleSelectFilteredOnly: true,
         pickoutSelected: false,
+        pickoutSelectedGroupLabel: "# (%)",
 
         selectAllText: 'Select all',
         allSelected: 'All selected',
