@@ -433,10 +433,9 @@
                 });
 
                 if (that.options.pickoutSelected) {
-                    if ($.trim(that.$searchInput.val()).length == 0) {
+                    if (true) {//($.trim(that.$searchInput.val()).length == 0) {
                         that._pickoutSelectedItems(this);
                     } else {
-                        // WHAT TO DO WHEN THERE'S FILTER TEXT?
                         (function () { return })();
                     }
                 }
