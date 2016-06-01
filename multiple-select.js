@@ -211,7 +211,8 @@
 
         init: function () {
             var that = this,
-                $ul = $('<ul></ul>');
+                $ul = $('<ul></ul>'),
+                clear_all_div, clear_all_anchor;
 
             this.$drop.html('');
 
@@ -234,6 +235,35 @@
                     '</label>',
                     '</li>'
                 ].join(''));
+            }
+
+            if (this.options.clearAll && !this.options.single) {
+                clear_all_div = document.createElement('div');
+                clear_all_div.classList.add('ms-clear-all');
+
+                clear_all_anchor = document.createElement('a');
+                clear_all_anchor.href = 'javascript:void(0);';
+                clear_all_anchor.textContent = this.options.clearAll;
+
+                if (that.options.pickoutSelected)
+                  clear_all_anchor.addEventListener( 'click', function (e) {
+                      that.$selectedArea.children('label').each( function () {
+                          this.dispatchEvent( new MouseEvent('click', {
+                              'view': window,
+                              'bubbles': true,
+                              'cancelable': true
+                          }));
+                      });
+                      e.preventDefault();
+                      return false;
+                  } );
+                else {
+                    console.log("Not yet implemented");
+                }
+
+                clear_all_div.appendChild( clear_all_anchor );
+
+                this.$drop.append( clear_all_div );
             }
 
             if (this.options.pickoutSelected) {
@@ -397,6 +427,7 @@
                     that.update();
                 }
             });
+
             this.$selectGroups.off('click').on('click', function () {
                 var group = $(this).parent().attr('data-group'),
                     $items = that.options.multipleSelectFilteredOnly
@@ -961,6 +992,8 @@
         allSelected: 'All selected',
         countSelected: '# of % selected',
         noMatchesFound: 'No matches found',
+
+        clearAll: 'Clear all',
 
         styler: function () {
             return false;

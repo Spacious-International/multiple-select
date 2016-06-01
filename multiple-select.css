@@ -79,6 +79,10 @@
     border-radius: 4px;
 }
 
+.ms-clear-all {
+  padding: 5px 8px;
+}
+
 .ms-drop.bottom {
     top: 100%;
     -webkit-box-shadow: 0 4px 5px rgba(0, 0, 0, .15);
