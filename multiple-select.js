@@ -237,6 +237,12 @@
                 ].join(''));
             }
 
+
+            if (this.options.pickoutSelected) {
+                this.$drop.append('<div class="ms-selected"></div>');
+            }
+            this.$selectedArea = this.$drop.find('.ms-selected');
+
             if (this.options.clearAll && !this.options.single) {
                 clear_all_div = document.createElement('div');
                 clear_all_div.classList.add('ms-clear-all');
@@ -245,7 +251,14 @@
                 clear_all_anchor.href = 'javascript:void(0);';
                 clear_all_anchor.textContent = this.options.clearAll;
 
-                if (that.options.pickoutSelected)
+                new MutationObserver( function(mutations) {
+                    if (that.$selectedArea.find('input').length === 0)
+                        $(clear_all_div).hide();
+                    else
+                        $(clear_all_div).show();
+                }).observe( this.$selectedArea[0], {childList: true} );
+
+                if (that.options.pickoutSelected) {
                   clear_all_anchor.addEventListener( 'click', function (e) {
                       that.$selectedArea.children('label').each( function () {
                           this.dispatchEvent( new MouseEvent('click', {
@@ -256,19 +269,15 @@
                       });
                       e.preventDefault();
                       return false;
-                  } );
-                else {
-                    console.log("Not yet implemented");
+                  });
+                } else {
+                    throw "Not yet implemented";
                 }
 
                 clear_all_div.appendChild( clear_all_anchor );
-
-                this.$drop.append( clear_all_div );
+                $(clear_all_div).insertBefore(this.$selectedArea);
             }
 
-            if (this.options.pickoutSelected) {
-                this.$drop.append('<div class="ms-selected"></div>');
-            }
 
             $.each(this.$el.children(), function (i, elm) {
                 $ul.append(that.optionToHtml(i, elm));
@@ -286,7 +295,6 @@
             this.$selectAll = this.$drop.find('input[' + this.selectAllName + ']');
             this.$selectGroups = this.$drop.find('input[' + this.selectGroupName + ']');
             this.$selectItems = this.$drop.find('input[' + this.selectItemName + ']:enabled');
-            this.$selectedArea = this.$drop.find('.ms-selected');
             this.$disableItems = this.$drop.find('input[' + this.selectItemName + ']:disabled');
             this.$noResults = this.$drop.find('.ms-no-results');
 
