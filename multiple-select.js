@@ -252,10 +252,7 @@
                 clear_all_anchor.textContent = this.options.clearAll;
 
                 new MutationObserver( function(mutations) {
-                    if (that.$selectedArea.find('input').length === 0)
-                        $(clear_all_div).hide();
-                    else
-                        $(clear_all_div).show();
+                    that._hide_or_show_clear_all_link();
                 }).observe( this.$selectedArea[0], {childList: true} );
 
                 if (that.options.pickoutSelected) {
@@ -276,6 +273,8 @@
 
                 clear_all_div.appendChild( clear_all_anchor );
                 $(clear_all_div).insertBefore(this.$selectedArea);
+                this.$clear_all_div = $(clear_all_div);
+                this._hide_or_show_clear_all_link();
             }
 
 
@@ -493,6 +492,13 @@
                     that.update();
                 }
             });
+        },
+
+        _hide_or_show_clear_all_link: function () {
+            if (this.$selectedArea.find('input').length === 0)
+                this.$clear_all_div.hide();
+            else
+                this.$clear_all_div.show();
         },
 
         _pickoutSelectedItems: function (item_input) {
