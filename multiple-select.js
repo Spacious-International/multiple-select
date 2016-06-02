@@ -243,6 +243,13 @@
             }
             this.$selectedArea = this.$drop.find('.ms-selected');
 
+
+            $.each(this.$el.children(), function (i, elm) {
+                $ul.append(that.optionToHtml(i, elm));
+            });
+            $ul.append(sprintf('<li class="ms-no-results">%s</li>', this.options.noMatchesFound));
+            this.$drop.append($ul);
+
             if (this.options.clearAll && !this.options.single) {
                 clear_all_div = document.createElement('div');
                 clear_all_div.classList.add('ms-clear-all');
@@ -272,17 +279,10 @@
                 }
 
                 clear_all_div.appendChild( clear_all_anchor );
-                $(clear_all_div).insertBefore(this.$selectedArea);
+                $(clear_all_div).insertAfter($ul);
                 this.$clear_all_div = $(clear_all_div);
                 this._hide_or_show_clear_all_link();
             }
-
-
-            $.each(this.$el.children(), function (i, elm) {
-                $ul.append(that.optionToHtml(i, elm));
-            });
-            $ul.append(sprintf('<li class="ms-no-results">%s</li>', this.options.noMatchesFound));
-            this.$drop.append($ul);
 
             this.$drop.find('ul').css('max-height', this.options.maxHeight + 'px');
             this.$drop.find('.multiple label')
