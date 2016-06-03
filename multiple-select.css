@@ -103,6 +103,11 @@
 .ms-selected {
     margin: 5px 8px;
 }
+.ms-selected:empty {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 
 .ms-search {
     margin: 0;
