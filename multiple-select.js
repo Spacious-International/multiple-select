@@ -284,7 +284,6 @@
                 this._hide_or_show_clear_all_link();
             }
 
-            this.$drop.find('ul').css('max-height', this.options.maxHeight + 'px');
             this.$drop.css('max-height', this.options.maxHeight + 'px');
             this.$drop.find('.multiple label')
                 .css('width',
