@@ -80,10 +80,13 @@
 }
 
 .ms-clear-all {
-  padding: 5px 8px;
+  margin: 5px 8px;
+  flex: 0 1 auto;
 }
 
 .ms-drop.bottom {
+    display: flex;
+    flex-flow: column;
     top: 100%;
     -webkit-box-shadow: 0 4px 5px rgba(0, 0, 0, .15);
     -moz-box-shadow: 0 4px 5px rgba(0, 0, 0, .15);
@@ -98,18 +101,17 @@
 }
 
 .ms-selected {
-    padding: 5px 8px;
+    margin: 5px 8px;
 }
 
 .ms-search {
-    display: inline-block;
     margin: 0;
     min-height: 26px;
-    padding: 4px;
+    margin: 4px;
     position: relative;
     white-space: nowrap;
-    width: 100%;
     z-index: 10000;
+    flex: 0 1 auto;
 }
 
 .ms-search input {
@@ -149,6 +151,7 @@
     overflow: auto;
     margin: 0;
     padding: 5px 8px;
+    flex: 1 1 auto;
 }
 
 .ms-drop ul > li {
