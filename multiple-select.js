@@ -285,6 +285,7 @@
             }
 
             this.$drop.find('ul').css('max-height', this.options.maxHeight + 'px');
+            this.$drop.css('max-height', this.options.maxHeight + 'px');
             this.$drop.find('.multiple label')
                 .css('width',
                      this.options.multipleWidth
