@@ -521,14 +521,14 @@
                              .clone()
                              .off('click')
                              .on('click', function (e) {
-                                 var original_checkbox;
+                                 var original_checkbox = that
+                                     .getSelectElemByValue( item_input.value );
+
                                  // $(this.getGroupElem(item_input.querySelector('input').dataset.group)).show();
                                  $(
-                                     ( original_checkbox = that
-                                       .getSelectElemByValue(
-                                           item_input.value )
-                                     ).parentElement
-                                         .parentElement
+                                     original_checkbox
+                                       .parentElement
+                                       .parentElement
                                  ).show();
                                  original_checkbox.checked = false;
                                  this.parentElement.removeChild(this);
@@ -559,7 +559,7 @@
                             .clone()
                             .off('click')
                             .on('click', function (e) {
-                                // Re-show all children
+                                // Re-show and uncheck all children
                                 that
                                     .getGroupElems( group )
                                     .forEach( function (e) {
@@ -863,6 +863,7 @@
         },
 
         checkAll: function () {
+            // Haochi's broken version: this is broken
             this.$selectItems.prop('checked', true);
             this.$selectGroups.prop('checked', true);
             this.$selectAll.prop('checked', true);
@@ -874,7 +875,15 @@
             this.$selectItems.prop('checked', false);
             this.$selectGroups.prop('checked', false);
             this.$selectAll.prop('checked', false);
+
+            // Remove everything from selected area.
+            this.$selectedArea.find('label').remove();
+
+            // Re-show everything in dropdown
+            this.$drop.find('li:has(input[type="checkbox"])').show();
+
             this.update();
+
             this.options.onUncheckAll();
         },
 
