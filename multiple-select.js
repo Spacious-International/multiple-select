@@ -607,6 +607,7 @@
                 return;
             }
             this.options.isOpen = true;
+            this.$choice.addClass('open')
             this.$choice.find('>div').addClass('open');
             this.$drop[this.animateMethod('show')]();
 
@@ -637,6 +638,7 @@
 
         close: function () {
             this.options.isOpen = false;
+            this.$choice.removeClass('open')
             this.$choice.find('>div').removeClass('open');
             this.$drop[this.animateMethod('hide')]();
             if (this.options.container) {
