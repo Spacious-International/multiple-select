@@ -169,6 +169,9 @@
                 '</button>'
             ].join(''),
             this.options.placeholder));
+        if (this.options.hasPNGArrow) {
+            this.$choice.addClass('ms-has-png-arrow');
+        }
 
         // default position is bottom
         this.$drop = $(sprintf('<div class="ms-drop %s"%s></div>',
@@ -1018,6 +1021,7 @@
         noMatchesFound: 'No matches found',
 
         clearAll: 'Clear all',
+        hasPNGArrow: false,
 
         styler: function () {
             return false;

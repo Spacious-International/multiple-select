@@ -58,6 +58,14 @@
     height: 25px;
 }
 
+.ms-choice.ms-has-png-arrow > div {
+    background: url('multiple-select.png') left top no-repeat;
+}
+.ms-choice.ms-has-png-arrow > div.open {
+    background: url('multiple-select.png') right top no-repeat;
+}
+
+
 .ms-drop {
     width: 100%;
     overflow: hidden;
