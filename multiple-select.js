@@ -281,9 +281,14 @@
                     throw "Not yet implemented";
                 }
 
-                clear_all_div.appendChild( clear_all_anchor );
-                $(clear_all_div).insertAfter($ul);
+
                 this.$clear_all_div = $(clear_all_div);
+
+                clear_all_div.appendChild( clear_all_anchor );
+                if (this.options.clearAllPosition === 'bottom')
+                    this.$clear_all_div.insertAfter($ul);
+                else if (this.options.clearAllPosition === 'top')
+                    this.$clear_all_div.insertBefore(this.$selectedArea);
                 this._hide_or_show_clear_all_link();
             }
 
@@ -1021,6 +1026,7 @@
         noMatchesFound: 'No matches found',
 
         clearAll: 'Clear all',
+        clearAllPosition: 'bottom',
         hasPNGArrow: false,
 
         styler: function () {
