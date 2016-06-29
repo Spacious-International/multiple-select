@@ -222,7 +222,11 @@
             if (this.options.filter) {
                 this.$drop.append([
                     '<div class="ms-search">',
-                    '<input type="text" autocomplete="off" autocorrect="off" autocapitilize="off" spellcheck="false">',
+                    this.options.input_placeholder
+                        ? sprintf(
+                            '<input type="text" placeholder="%s" autocomplete="off" autocorrect="off" autocapitilize="off" spellcheck="false">',
+                            this.options.input_placeholder )
+                        : '<input type="text" autocomplete="off" autocorrect="off" autocapitilize="off" spellcheck="false">',
                     '</div>'].join('')
                 );
             }
@@ -1028,6 +1032,8 @@
         clearAll: 'Clear all',
         clearAllPosition: 'bottom',
         hasPNGArrow: false,
+        input_placeholder: false,
+
 
         styler: function () {
             return false;
