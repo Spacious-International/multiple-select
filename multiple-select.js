@@ -294,6 +294,8 @@
                     this.$clear_all_div.insertAfter($ul);
                 else if (this.options.clearAllPosition === 'top')
                     this.$clear_all_div.insertBefore(this.$selectedArea);
+                else if (this.options.clearAllPosition === 'after_selected_area')
+                    this.$clear_all_div.insertAfter(this.$selectedArea);
                 this._hide_or_show_clear_all_link();
             }
 
