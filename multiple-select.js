@@ -971,7 +971,8 @@
                 'open', 'close',
                 'checkAll', 'uncheckAll',
                 'focus', 'blur',
-                'refresh', 'close'
+                'refresh', 'close',
+                'filter',
             ];
 
         this.each(function () {
