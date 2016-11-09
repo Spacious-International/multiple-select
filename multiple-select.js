@@ -300,7 +300,8 @@
             }
 
             this.$drop.css('max-height', this.options.maxHeight + (typeof this.options.maxHeight === 'number' ? 'px' : ''));
-            this.$drop.css('height', this.options.height + (typeof this.options.height === 'number' ? 'px' : ''));
+            if (this.options.height)
+                this.$drop.css('height', this.options.height + (typeof this.options.height === 'number' ? 'px' : ''));
 
             this.$drop.find('.multiple label')
                 .css('width',
@@ -1017,7 +1018,7 @@
         width: undefined,
         dropWidth: undefined,
         maxHeight: 250,
-        height: 250,
+        height: false,
         container: null,
         position: 'bottom',
         keepOpen: false,
